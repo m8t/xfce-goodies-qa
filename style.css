@@ -1,0 +1,155 @@
+body {
+font-family: Arial, Helvetica, sans-serif;
+font-size: 0.8em;
+}
+
+noscript p {
+font-weight: bold;
+font-size: 1.4em;
+color: red;
+}
+
+h1 {
+margin: 0;
+padding: 0.4em;
+background: -webkit-gradient(linear, left top, left bottom, from(#e6e6e6), to(#fff));
+border-top-left-radius: 0.3em;
+border-top-right-radius: 0.3em;
+border-style: solid;
+border-color: gray;
+border-width: 1px 1px 0 1px;
+}
+
+h2 {
+margin: 0.8em 1.2em 0.2em 1.2em;
+}
+
+h2 span:hover {
+text-decoration: underline;
+cursor: pointer;
+}
+
+h2 + div {
+margin: 0 1.8em;
+padding: 0.6em;
+background: -webkit-gradient(linear, left bottom, left top, from(#e6e6e6), to(#fff));
+border-bottom-left-radius: 0.6em;
+border-bottom-right-radius: 0.6em;
+}
+
+a img {
+border: 0;
+}
+
+div p {
+margin: 0;
+padding: 0;
+}
+
+div ul {
+list-style: none;
+margin: 0;
+padding: 0;
+}
+
+div ul li {
+font-weight: bold;
+display: inline;
+margin-right: 1em;
+}
+
+div ul li span:hover {
+text-decoration: underline;
+cursor: pointer;
+}
+
+.tooltip {
+border-bottom: 1px dashed #666;
+cursor: help;
+}
+
+div#guest-information {
+position: absolute;
+right: 5px;
+top: 5px;
+margin: 0;
+padding: 0.8em;
+border: 1px solid #000;
+border-radius: 0.3em;
+font-size: 0.9em;
+background-color: white;
+background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#eee));
+color: black;
+line-height: 135%;
+}
+
+div#guest-information p em {
+font-style: italic;
+}
+
+div#current-projects table {
+border-collapse: collapse;
+}
+
+div#current-projects table thead tr th {
+background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd));
+border-bottom: 2px solid black;
+padding: 2px 6px;
+font-size: 110%;
+}
+
+div#current-projects table tbody tr td:first-child {
+border-top: 1px solid black;
+border-left: 0px;
+padding: 2px 4px;
+}
+
+div#current-projects table tbody tr td {
+border-top: 1px solid black;
+border-left: 1px solid black;
+padding: 2px 4px;
+}
+
+div#current-projects table td.nowrap {
+white-space: nowrap;
+}
+
+div#current-projects table .coool {
+background-color: #729fcf;
+color: #000;
+}
+
+div#current-projects table .uptodate {
+background-color: #73d216;
+color: #000;
+}
+
+div#current-projects table .warning {
+background-color: #f57900;
+color: #000;
+}
+
+div#current-projects table .critical {
+background-color: #cc0000;
+color: #fff;
+}
+
+div#current-projects #last-cache-check {
+margin: 0.6em;
+text-align: right;
+color: #333;
+}
+
+div#add-new-project input[type=text],
+div#add-new-project input[type=date],
+div#edit-project input[type=text],
+div#edit-project input[type=date] {
+width: 40em;
+}
+
+div#add-new-project textarea,
+div#edit-project textarea {
+width: 40em;
+height: 8em;
+}
+
