@@ -323,6 +323,7 @@ while (($row = mysql_fetch_array($ret)) != false) {
 	    <a target="_blank" href="http://goodies.xfce.org/projects/${classification}/${project_name}"><img src="homepage.png" alt="Homepage" title="Homepage" /></a>
 	    <a target="_blank" href="http://git.xfce.org/${classification}/${project_name}"><img src="cgit.png" alt="CGit" title="CGit" /></a>
 	    <a target="_blank" href="https://bugzilla.xfce.org/buglist.cgi?bug_status=NEW;bug_status=ASSIGNED;bug_status=REOPENED;bug_status=RESOLVED;product=${project_bugzilla_name};resolution=---;resolution=LATER"><img src="bug.png" alt="Bugzilla" title="Bugzilla" /></a>
+	    <a target="_blank" href="https://translations.xfce.org/projects/p/${project_name}/c/master/"><img src="transifex.png" alt="Transifex" title="Transifex" /></a>
 	    <a target="_blank" href="http://archive.xfce.org/src/${classification}/${project_name}"><img src="archive.png" alt="Archive" title="Archive" /></a>
 
 EOF;
