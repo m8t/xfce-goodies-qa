@@ -247,7 +247,9 @@ $project_name = mysql_result($ret, 0, 0);
       <th valign="bottom">Project</th>
       <th valign="bottom">Version</th>
       <th valign="bottom">Release<br />date</th>
+<?php if($user_id != 0) { ?>
       <th valign="bottom">Review<br />date</th>
+<?php } ?>
       <th valign="bottom">Commit<br />date</th>
       <th valign="bottom">Open<br />bugs</th>
       <th valign="bottom">Last<br />commit by</th>
@@ -341,7 +343,15 @@ EOF;
 	  <td valign="top" class="nowrap">${project_name}</td>
 	  <td valign="top" class="nowrap">${last_release_version}</td>
 	  <td valign="top" class="${td_release_class} nowrap">${last_release_date}</td>
+
+EOF;
+	if ($user_id != 0) {
+	echo <<< EOF
 	  <td valign="top" class="${td_review_class} nowrap">${last_review_date}</td>
+
+EOF;
+	}
+	echo <<< EOF
 	  <td valign="top" class="${td_commit_class} nowrap">${last_commit_date}</td>
 	  <td valign="top" class="${td_bugs_class} nowrap">${open_bugs}</td>
 	  <td valign="top" class="nowrap">${last_commit_username}</td>
@@ -367,12 +377,14 @@ EOF;
   <tr>
     <th colspan="4" align="left">Legend</th>
   </tr>
+<?php if ($user_id != 0) { ?>
   <tr>
     <td>Review date:</td>
     <td class="uptodate">Less than <?php echo REVIEW_DATE_1 ?> days</td>
     <td class="warning">Less than <?php echo REVIEW_DATE_2 ?> days</td>
     <td class="critical"><?php echo REVIEW_DATE_2 ?> days and more</td>
   </tr>
+<?php } ?>
   <tr>
     <td>Release date:</td>
     <td class="uptodate">Less than <?php echo RELEASE_DATE_1 ?> days</td>
