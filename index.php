@@ -1,5 +1,6 @@
 <?php
 session_start();
+ob_start();
 define("REVIEW_DATE_1", 60);
 define("REVIEW_DATE_2", 120);
 define("RELEASE_DATE_1", 360);
@@ -116,6 +117,9 @@ if (isset ($_REQUEST['action']) && $user_id != 0) {
 			$ret = mysql_query("DELETE FROM projects WHERE `id` = '$project_id'", $mysql);
 			$ret = mysql_query("DELETE FROM reviews WHERE `project-id` = '$project_id'", $mysql);
 			unset($_REQUEST['action']);
+			break;
+
+		case "inspect":
 			break;
 
 		default:
@@ -238,6 +242,84 @@ $project_name = mysql_result($ret, 0, 0);
 
 <?php } ?>
 
+<?php if (isset($_REQUEST['action']) && $_REQUEST['action'] == "inspect") { ?>
+<h2>Inspect project</h2>
+
+<div id="inspect-project">
+<?php
+$project_id = mysql_real_escape_string($_GET['project_id']);
+$ret = mysql_query("SELECT `project-name`, `classification`, `last-release-version`, `last-release-date` FROM `projects` WHERE `projects`.`id` = '$project_id'", $mysql);
+$row = mysql_fetch_array($ret);
+$project_name = $row['project-name'];
+$project_bugzilla_name = ucfirst($row['project-name']);
+$classification = $row['classification'];
+$last_release_version = $row['last-release-version'];
+$last_release_date = $row['last-release-date'];
+?>
+<dl>
+  <dt>Project name</dt>
+  <dd><?php echo "${project_name} ${last_release_version} (${last_release_date})" ?></dd>
+  <dt>Homepage</dt>
+  <dd><a target="_blank" href="<?php echo "http://goodies.xfce.org/projects/${classification}/${project_name}" ?>">Homepage</a></dd>
+  <dt>Open bugs</dt>
+<?php
+ob_flush();
+$reader = new XMLReader();
+$open = $reader->open("https://bugzilla.xfce.org/buglist.cgi?bug_status=NEW;bug_status=ASSIGNED;bug_status=REOPENED;bug_status=RESOLVED;product=${project_bugzilla_name};resolution=---;resolution=LATER;order=changeddate%20DESC,bug_id;ctype=atom");
+if ($open != false) {
+	$entry_start = false;
+	while ($reader->read()) {
+		if ($reader->name == 'entry' && $reader->nodeType == XMLReader::ELEMENT) {
+			$entry_start = true;
+			$has_title = false;
+			$has_id = false;
+			$has_updated = false;
+		}
+		else if ($reader->name == 'entry' && $reader->nodeType == XMLReader::END_ELEMENT) {
+			$entry_start = false;
+		}
+
+		if ($entry_start == true) {
+			if (!$has_title && $reader->name == 'title' && $reader->nodeType == XMLReader::ELEMENT) {
+				$reader->read();
+				$title = $reader->value;
+				$has_title = true;
+			}
+			else if (!$has_id && $reader->name == 'id' && $reader->nodeType == XMLReader::ELEMENT) {
+				$reader->read();
+				$id = $reader->value;
+				$has_id = true;
+			}
+			else if (!$has_updated && $reader->name == 'updated' && $reader->nodeType == XMLReader::ELEMENT) {
+				$reader->read();
+				$updated = $reader->value;
+				$has_updated = true;
+			}
+
+			if ($has_title && $has_id && $has_updated) {
+				$date = date("Y-m-d", strtotime($updated));
+				echo "  <dd>${date} <a target=\"blank\" href=\"${id}\">${title}</a></dd>\n";
+				$has_title = false;
+				$has_id = false;
+				$has_updated = false;
+			}
+		}
+	}
+}
+else {
+	echo "  <dd>Error: Couldn't read bugzilla.xfce.org</dd>\n";
+}
+$reader = null;
+ob_flush();
+?>
+  <dt>Latest commits</dt>
+  <dd>...</dd>
+  <dd>...</dd>
+</dl>
+</div>
+
+<?php } ?>
+
 <h2>Current projects</h2>
 
 <div id="current-projects">
@@ -341,7 +423,7 @@ EOF;
 	}
 	echo <<< EOF
 	  </td>
-	  <td valign="top" class="nowrap">${project_name}</td>
+	  <td valign="top" class="nowrap"><a href="?action=inspect&project_id=${row['id']}">${project_name}</a></td>
 	  <td valign="top" class="nowrap">${last_release_version}</td>
 	  <td valign="top" class="${td_release_class} nowrap">${last_release_date}</td>
 

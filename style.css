@@ -96,6 +96,11 @@ div#guest-information p em {
 font-style: italic;
 }
 
+div#inspect-project dl dt {
+font-weight: bold;
+font-size: 120%;
+}
+
 div#current-projects table {
 border-collapse: collapse;
 }
