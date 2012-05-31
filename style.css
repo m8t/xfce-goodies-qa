@@ -81,6 +81,15 @@ background-color: white;
 background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#eee));
 color: black;
 line-height: 135%;
+cursor: help;
+}
+
+div#guest-information p#content {
+display: none;
+}
+
+div#guest-information:active p#content {
+display: block;
 }
 
 div#guest-information p em {

@@ -129,7 +129,8 @@ else if (isset ($_REQUEST['action']) && $user_id == 0) {
 ?>
 
 <div id="guest-information">
-  <p>
+  <p><strong>Guest information</strong></p>
+  <p id="content">
 	Username: <em><?php echo $username ?></em><br />
 	IP: <em><?php echo (isset ($_SERVER['HTTP_X_FORWARDED_FOR'])) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'] ?></em><br />
 	Protocol: <em><?php echo "${_SERVER['SERVER_PROTOCOL']} ${_SERVER['HTTP_CONNECTION']}" ?></em><br />
