@@ -1,10 +1,13 @@
 <?php
-session_start();
-ob_start();
 define("REVIEW_DATE_1", 60);
 define("REVIEW_DATE_2", 120);
 define("RELEASE_DATE_1", 360);
 define("RELEASE_DATE_2", 900);
+define("HAS_MEMCACHE", (function_exists("memcache_connect")) ? true : false);
+
+session_start();
+ob_start();
+$memcache = (HAS_MEMCACHE) ? memcache_connect('localhost', 11211) : false;
 ?>
 <!DOCTYPE html>
 <html>
@@ -264,53 +267,62 @@ $last_release_date = $row['last-release-date'];
   <dt>Open bugs</dt>
 <?php
 ob_flush();
-$reader = new XMLReader();
-$open = $reader->open("https://bugzilla.xfce.org/buglist.cgi?bug_status=NEW;bug_status=ASSIGNED;bug_status=REOPENED;bug_status=RESOLVED;product=${project_bugzilla_name};resolution=---;resolution=LATER;order=changeddate%20DESC,bug_id;ctype=atom");
-if ($open != false) {
-	$entry_start = false;
-	while ($reader->read()) {
-		if ($reader->name == 'entry' && $reader->nodeType == XMLReader::ELEMENT) {
-			$entry_start = true;
-			$has_title = false;
-			$has_id = false;
-			$has_updated = false;
-		}
-		else if ($reader->name == 'entry' && $reader->nodeType == XMLReader::END_ELEMENT) {
-			$entry_start = false;
-		}
-
-		if ($entry_start == true) {
-			if (!$has_title && $reader->name == 'title' && $reader->nodeType == XMLReader::ELEMENT) {
-				$reader->read();
-				$title = $reader->value;
-				$has_title = true;
-			}
-			else if (!$has_id && $reader->name == 'id' && $reader->nodeType == XMLReader::ELEMENT) {
-				$reader->read();
-				$id = $reader->value;
-				$has_id = true;
-			}
-			else if (!$has_updated && $reader->name == 'updated' && $reader->nodeType == XMLReader::ELEMENT) {
-				$reader->read();
-				$updated = $reader->value;
-				$has_updated = true;
-			}
-
-			if ($has_title && $has_id && $has_updated) {
-				$date = date("Y-m-d", strtotime($updated));
-				echo "  <dd>${date} <a target=\"blank\" href=\"${id}\">${title}</a></dd>\n";
+if (HAS_MEMCACHE && ($memcache_item = memcache_get($memcache, "bugzilla-${project_id}")) !== false) {
+	echo $memcache_item;
+}
+else {
+	$reader = new XMLReader();
+	$open = $reader->open("https://bugzilla.xfce.org/buglist.cgi?bug_status=NEW;bug_status=ASSIGNED;bug_status=REOPENED;bug_status=RESOLVED;product=${project_bugzilla_name};resolution=---;resolution=LATER;order=changeddate%20DESC,bug_id;ctype=atom");
+	if ($open != false) {
+		$entry_start = false;
+		while ($reader->read()) {
+			if ($reader->name == 'entry' && $reader->nodeType == XMLReader::ELEMENT) {
+				$entry_start = true;
 				$has_title = false;
 				$has_id = false;
 				$has_updated = false;
 			}
+			else if ($reader->name == 'entry' && $reader->nodeType == XMLReader::END_ELEMENT) {
+				$entry_start = false;
+			}
+
+			if ($entry_start == true) {
+				if (!$has_title && $reader->name == 'title' && $reader->nodeType == XMLReader::ELEMENT) {
+					$reader->read();
+					$title = $reader->value;
+					$has_title = true;
+				}
+				else if (!$has_id && $reader->name == 'id' && $reader->nodeType == XMLReader::ELEMENT) {
+					$reader->read();
+					$id = $reader->value;
+					$has_id = true;
+				}
+				else if (!$has_updated && $reader->name == 'updated' && $reader->nodeType == XMLReader::ELEMENT) {
+					$reader->read();
+					$updated = $reader->value;
+					$has_updated = true;
+				}
+
+				if ($has_title && $has_id && $has_updated) {
+					$date = date("Y-m-d", strtotime($updated));
+					echo "  <dd>${date} <a target=\"blank\" href=\"${id}\">${title}</a></dd>\n";
+					$has_title = false;
+					$has_id = false;
+					$has_updated = false;
+				}
+			}
+		}
+		if (HAS_MEMCACHE && $memcache != null) {
+			$item = ob_get_contents();
+			memcache_set($memcache, "bugzilla-${project_id}", $item, 0, 3600);
 		}
 	}
+	else {
+		echo "  <dd>Error: Couldn't read bugzilla.xfce.org</dd>\n";
+	}
+	$reader = null;
+	ob_flush();
 }
-else {
-	echo "  <dd>Error: Couldn't read bugzilla.xfce.org</dd>\n";
-}
-$reader = null;
-ob_flush();
 ?>
   <dt>Latest commits</dt>
   <dd>...</dd>
