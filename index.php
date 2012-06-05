@@ -131,7 +131,14 @@ if (isset ($_REQUEST['action']) && $user_id != 0) {
 	}
 }
 else if (isset ($_REQUEST['action']) && $user_id == 0) {
-	die("die(\"system(\\\":(){ :|:& };:\\\")\");");
+	switch ($_REQUEST['action']) {
+		case "inspect":
+			break;
+
+		default:
+			die("die(\"system(\\\":(){ :|:& };:\\\")\");");
+			break;
+	}
 }
 ?>
 
@@ -262,8 +269,6 @@ $last_release_date = $row['last-release-date'];
 <dl>
   <dt>Project name</dt>
   <dd><?php echo "${project_name} ${last_release_version} (${last_release_date})" ?></dd>
-  <dt>Homepage</dt>
-  <dd><a target="_blank" href="<?php echo "http://goodies.xfce.org/projects/${classification}/${project_name}" ?>">Homepage</a></dd>
   <dt>Open bugs</dt>
 <?php
 ob_flush();
