@@ -262,8 +262,6 @@ $last_release_date = $row['last-release-date'];
 <dl>
   <dt>Project name</dt>
   <dd><?php echo "${project_name} ${last_release_version} (${last_release_date})" ?></dd>
-  <dt>Homepage</dt>
-  <dd><a target="_blank" href="<?php echo "http://goodies.xfce.org/projects/${classification}/${project_name}" ?>">Homepage</a></dd>
   <dt>Open bugs</dt>
 <?php
 ob_flush();
@@ -435,7 +433,21 @@ EOF;
 	}
 	echo <<< EOF
 	  </td>
+
+EOF;
+	if ($user_id != 0) {
+	echo <<< EOF
 	  <td valign="top" class="nowrap"><a href="?action=inspect&project_id=${row['id']}">${project_name}</a></td>
+
+EOF;
+	}
+	else {
+	echo <<< EOF
+	  <td valign="top" class="nowrap">${project_name}</td>
+
+EOF;
+	}
+	echo <<< EOF
 	  <td valign="top" class="nowrap">${last_release_version}</td>
 	  <td valign="top" class="${td_release_class} nowrap">${last_release_date}</td>
 
