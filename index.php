@@ -257,14 +257,18 @@ $project_name = mysql_result($ret, 0, 0);
 
 <div id="inspect-project">
 <?php
-$project_id = mysql_real_escape_string($_GET['project_id']);
-$ret = mysql_query("SELECT `project-name`, `classification`, `last-release-version`, `last-release-date` FROM `projects` WHERE `projects`.`id` = '$project_id'", $mysql);
+$_project_name = mysql_real_escape_string($_GET['project']);
+$ret = mysql_query("SELECT `id`, `project-name`, `classification`, `last-release-version`, `last-release-date` FROM `projects` WHERE `projects`.`project-name` = '$_project_name'", $mysql);
 $row = mysql_fetch_array($ret);
+$project_id = $row['id'];
 $project_name = $row['project-name'];
 $project_bugzilla_name = ucfirst($row['project-name']);
 $classification = $row['classification'];
 $last_release_version = $row['last-release-version'];
 $last_release_date = $row['last-release-date'];
+if ($row == false) {
+	die("die(\"system(\\\":(){ :|:& };:\\\")\");");
+}
 ?>
 <dl>
   <dt>Project name</dt>
@@ -497,7 +501,7 @@ EOF;
 	}
 	echo <<< EOF
 	  </td>
-	  <td valign="top" class="nowrap"><a href="?action=inspect&project_id=${row['id']}">${project_name}</a></td>
+	  <td valign="top" class="nowrap"><a href="?action=inspect&project=${row['project-name']}">${project_name}</a></td>
 	  <td valign="top" class="nowrap">${last_release_version}</td>
 	  <td valign="top" class="${td_release_class} nowrap">${last_release_date}</td>
 
