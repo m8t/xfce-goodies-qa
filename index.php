@@ -323,8 +323,65 @@ else {
 }
 ?>
   <dt>Latest commits</dt>
-  <dd>...</dd>
-  <dd>...</dd>
+<?php
+ob_flush();
+if (HAS_MEMCACHE && ($memcache_item = memcache_get($memcache, "cgit-${project_id}")) !== false) {
+	echo $memcache_item;
+}
+else {
+	$reader = new XMLReader();
+	$open = $reader->open("http://git.xfce.org/${classification}/${project_name}/atom");
+	if ($open != false) {
+		$entry_start = false;
+		while ($reader->read()) {
+			if ($reader->name == 'entry' && $reader->nodeType == XMLReader::ELEMENT) {
+				$entry_start = true;
+				$has_title = false;
+				$has_link = false;
+				$has_updated = false;
+			}
+			else if ($reader->name == 'entry' && $reader->nodeType == XMLReader::END_ELEMENT) {
+				$entry_start = false;
+			}
+
+			if ($entry_start == true) {
+				if (!$has_title && $reader->name == 'title' && $reader->nodeType == XMLReader::ELEMENT) {
+					$reader->read();
+					$title = $reader->value;
+					$has_title = true;
+				}
+				else if (!$has_link && $reader->name == 'link' && $reader->nodeType == XMLReader::ELEMENT) {
+					//$reader->read();
+					$link = $reader->getAttribute('href');
+					$has_link = true;
+				}
+				else if (!$has_updated && $reader->name == 'updated' && $reader->nodeType == XMLReader::ELEMENT) {
+					$reader->read();
+					$updated = $reader->value;
+					$has_updated = true;
+				}
+
+				if ($has_title && $has_link && $has_updated) {
+					$date = date("Y-m-d", strtotime($updated));
+					echo "  <dd>${date} <a target=\"blank\" href=\"${link}\">${title}</a></dd>\n";
+					$has_title = false;
+					$has_link = false;
+					$has_updated = false;
+				}
+			}
+		}
+		if (HAS_MEMCACHE && $memcache != null) {
+			$item = ob_get_contents();
+			memcache_set($memcache, "cgit-${project_id}", $item, 0, 3600);
+		}
+	}
+	else {
+		echo "  <dd>Error: Couldn't read git.xfce.org</dd>\n";
+	}
+	$reader = null;
+	ob_flush();
+}
+?>
 </dl>
 </div>
 
