@@ -88,7 +88,7 @@ div#guest-information p#content {
 display: none;
 }
 
-div#guest-information:active p#content {
+div#guest-information:hover p#content {
 display: block;
 }
 
