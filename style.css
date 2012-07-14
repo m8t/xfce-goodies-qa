@@ -149,9 +149,8 @@ color: #fff;
 }
 
 div#current-projects #last-cache-check {
-margin: 0.6em;
-text-align: right;
-color: #333;
+margin: 1.2em 0;
+color: #666;
 }
 
 div#add-new-project input[type=text],

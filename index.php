@@ -269,6 +269,10 @@ $last_release_date = $row['last-release-date'];
 if ($row == false) {
 	die("die(\"system(\\\":(){ :|:& };:\\\")\");");
 }
+if ($user_id != 0 && HAS_MEMCACHE && isset($_REQUEST['no_memcache'])) {
+	memcache_delete($memcache, "bugzilla-${project_id}");
+	memcache_delete($memcache, "cgit-${project_id}");
+}
 ?>
 <dl>
   <dt>Project name</dt>
@@ -394,6 +398,9 @@ else {
 }
 ?>
 </dl>
+<?php if($user_id != 0) { ?>
+<p id="last-cache-check"><a href="?action=inspect&project=<?php echo ${project_name} ?>&no_memcache">Force cache update</a></p>
+<?php } ?>
 </div>
 
 <?php } ?>
