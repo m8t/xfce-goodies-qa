@@ -12,7 +12,7 @@ $memcache = (HAS_MEMCACHE) ? memcache_connect('localhost', 11211) : false;
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Xfce-goodies QA</title>
+  <title>Xfce Goodies QA</title>
   <meta charset="utf-8" />
   <link rel="stylesheet" href="style.css" />
 </head>
