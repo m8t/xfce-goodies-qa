@@ -80,7 +80,6 @@ if (isset ($_REQUEST['action']) && $user_id != 0) {
 			$classification = mysql_real_escape_string($_POST['classification']);
 			$last_release_version = mysql_real_escape_string($_POST['last-release-version'], $mysql);
 			$last_release_date = mysql_real_escape_string($_POST['last-release-date']);
-			$comments = mysql_real_escape_string($_POST['comments'], $mysql);
 			$ret = mysql_query("INSERT INTO projects (`project-name`, `classification`, `last-release-version`, `last-release-date`) "
 				. "VALUES ('${project_name}', '${classification}', '${last_release_version}', '${last_release_date}')",
 				$mysql);
@@ -89,8 +88,8 @@ if (isset ($_REQUEST['action']) && $user_id != 0) {
 			}
 			$ret = mysql_query("SELECT id FROM projects WHERE `project-name`='${_POST['project-name']}'");
 			$project_id = mysql_result($ret, 0);
-			mysql_query("INSERT INTO reviews (`project-id`, `last-user-id`, `last-review-date`, `comments`) "
-				. "VALUES ('${project_id}', '${user_id}', DATE(NOW()), '${comments}')");
+			mysql_query("INSERT INTO reviews (`project-id`, `last-user-id`, `last-review-date`) "
+				. "VALUES ('${project_id}', '${user_id}', DATE(NOW()))");
 			break;
 
 		case "edit":
@@ -101,9 +100,8 @@ if (isset ($_REQUEST['action']) && $user_id != 0) {
 			$classification = mysql_real_escape_string($_POST['classification']);
 			$last_release_version = mysql_real_escape_string($_POST['last-release-version'], $mysql);
 			$last_release_date = mysql_real_escape_string($_POST['last-release-date']);
-			$comments = mysql_real_escape_string($_POST['comments'], $mysql);
 			$ret = mysql_query("UPDATE projects SET `classification` = '$classification', `last-release-version` = '$last_release_version', `last-release-date` = '$last_release_date' WHERE `id` = '$project_id'", $mysql);
-			$ret = mysql_query("UPDATE reviews SET `last-user-id` = '$user_id', `last-review-date` = DATE(NOW()), `comments` = '$comments' WHERE `project-id` = '$project_id'", $mysql);
+			$ret = mysql_query("UPDATE reviews SET `last-user-id` = '$user_id', `last-review-date` = DATE(NOW()) WHERE `project-id` = '$project_id'", $mysql);
 			unset($_REQUEST['action']);
 			break;
 
@@ -196,13 +194,12 @@ else if (isset ($_REQUEST['action']) && $user_id == 0) {
 <div id="edit-project">
 <?php
 $project_id = mysql_real_escape_string($_GET['project_id']);
-$ret = mysql_query("SELECT `project-name`, `last-release-version`, `last-release-date`, `last-review-date`, `comments` FROM `projects` JOIN (`reviews`) ON (`projects`.`id` = `reviews`.`project-id`) WHERE `projects`.`id` = '$project_id'", $mysql);
+$ret = mysql_query("SELECT `project-name`, `last-release-version`, `last-release-date`, `last-review-date` FROM `projects` JOIN (`reviews`) ON (`projects`.`id` = `reviews`.`project-id`) WHERE `projects`.`id` = '$project_id'", $mysql);
 $row = mysql_fetch_array($ret);
 $project_name = $row['project-name'];
 $last_release_version = $row['last-release-version'];
 $last_release_date = $row['last-release-date'];
 $last_review_date = $row['last-review-date'];
-$comments = htmlentities($row['comments']);
 ?>
 <form method="post">
   <input type="hidden" name="action" value="edit" />
@@ -220,10 +217,6 @@ $comments = htmlentities($row['comments']);
     <tr>
       <td valign="top">Last release date:</td>
       <td><input type="date" name="last-release-date" value="<?php echo $last_release_date ?>" /></td>
-    </tr>
-    <tr>
-      <td valign="top">Comments:</td>
-      <td><textarea name="comments"><?php echo $comments ?></textarea></td>
     </tr>
     <tr>
       <td colspan="2" align="left"><input type="submit" value="Save" /></td>
@@ -423,14 +416,13 @@ else {
       <th valign="bottom">Last<br />commit by</th>
 <?php if ($user_id != 0) { ?>
       <th valign="bottom">Last<br />reviewed by</th>
-      <th valign="bottom">Comments</th>
 <?php } ?>
     </tr>
   </thead>
   <tbody>
 <?php
 /* Select rows from MySQL */
-$ret = mysql_query("SELECT `id`, `project-name`, `classification`, `last-release-version`, `last-release-date`, `last-review-date`, `last-user-id`, `last-commit-date`, `last-commit-username`, `open-bugs`, `comments` FROM `projects` JOIN (`reviews`) ON (`projects`.`id` = `reviews`.`project-id`) ORDER BY `projects`.`project-name`", $mysql);
+$ret = mysql_query("SELECT `id`, `project-name`, `classification`, `last-release-version`, `last-release-date`, `last-review-date`, `last-user-id`, `last-commit-date`, `last-commit-username`, `open-bugs` FROM `projects` JOIN (`reviews`) ON (`projects`.`id` = `reviews`.`project-id`) ORDER BY `projects`.`project-name`", $mysql);
 while (($row = mysql_fetch_array($ret)) != false) {
 	$project_name = htmlentities($row['project-name']);
 	$project_bugzilla_name = ucfirst($row['project-name']);
@@ -444,7 +436,6 @@ while (($row = mysql_fetch_array($ret)) != false) {
 	$last_commit_date = htmlentities($row['last-commit-date']);
 	$last_commit_username = htmlentities(utf8_decode($row['last-commit-username']));
 	$open_bugs = $row['open-bugs'];
-	$comments = nl2br(htmlentities($row['comments']));
 	/* Define default TD class depending on date of last review. */
 	$old_review_date = new DateTime($last_review_date);
 	$new_review_date = new DateTime("now");
@@ -528,7 +519,6 @@ EOF;
 	if ($user_id != 0) {
 	echo <<< EOF
 	  <td valign="top" class="nowrap">${last_username}</td>
-	  <td valign="top">${comments}</td>
 
 EOF;
 	}
@@ -587,9 +577,6 @@ $date = date("Y-m-d H:i:s", $stat['mtime']);
     </tr>
     <tr>
       <td valign="top">Release date:</td><td><input type="date" name="last-release-date" /></td>
-    </tr>
-    <tr>
-      <td valign="top">Comments:</td><td><textarea name="comments"></textarea></td>
     </tr>
     <tr>
       <td colspan="2" align="left"><input type="submit" value="Add project" /></td>

@@ -14,8 +14,7 @@ CREATE TABLE `projects` (
 CREATE TABLE `reviews` (
   `project-id` int(10) unsigned NOT NULL,
   `last-user-id` int(10) unsigned NOT NULL,
-  `last-review-date` date NOT NULL,
-  `comments` text NOT NULL
+  `last-review-date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `users` (
